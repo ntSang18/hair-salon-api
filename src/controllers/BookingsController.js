@@ -10,6 +10,7 @@ class BookingsController {
       res.send(booking);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -36,6 +37,7 @@ class BookingsController {
       res.send(obj);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -87,6 +89,7 @@ class BookingsController {
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
+      throw err;
     }
   }
 
@@ -104,7 +107,11 @@ class BookingsController {
           (item) => new Object({ serviceId: item })
         );
       }
-      if (roleIdAuth != variable.ReceptionistRoleId && status != "Cancel")
+      if (
+        roleIdAuth != variable.ReceptionistRoleId &&
+        roleIdAuth != variable.AdminRoleId &&
+        status != "Cancel"
+      )
         return res
           .status(variable.Forbidden)
           .send(
@@ -156,6 +163,7 @@ class BookingsController {
       res.send(update);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -163,7 +171,11 @@ class BookingsController {
     try {
       const roleIdAuth = req.user.roleId;
       const status = req.body.status;
-      if (roleIdAuth != variable.ReceptionistRoleId && status)
+      if (
+        roleIdAuth != variable.ReceptionistRoleId &&
+        roleIdAuth != variable.AdminRoleId &&
+        status
+      )
         return res
           .status(variable.Forbidden)
           .send("No permission! Only work for receptionist role!");
@@ -172,13 +184,12 @@ class BookingsController {
         idArray,
         status
       );
-      if (update === variable.Forbidden)
-        return res.status(variable.Forbidden).send("No permission!");
       if (update === variable.NotFound)
         return res.status(variable.NotFound).send("No bookings is updated!");
       res.send(update);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -187,7 +198,11 @@ class BookingsController {
       let id = parseInt(req.params.id);
       let roleIdAuth = req.user.roleId;
       const customerId = parseInt(req.user.Id);
-      if (roleIdAuth && roleIdAuth != variable.ReceptionistRoleId)
+      if (
+        roleIdAuth &&
+        roleIdAuth != variable.ReceptionistRoleId &&
+        roleIdAuth != variable.AdminRoleId
+      )
         return res
           .status(variable.BadRequest)
           .send("No permission! Only works for receptionist accounts");
@@ -200,6 +215,7 @@ class BookingsController {
         return res.status(variable.BadRequest).send(err.meta.cause);
       }
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -208,7 +224,11 @@ class BookingsController {
       let id = parseInt(req.params.id);
       let roleIdAuth = req.user.roleId;
       const customerId = parseInt(req.user.Id);
-      if (roleIdAuth && roleIdAuth != variable.ReceptionistRoleId)
+      if (
+        roleIdAuth &&
+        roleIdAuth != variable.ReceptionistRoleId &&
+        roleIdAuth != variable.ReceptionistRoleId
+      )
         return res
           .status(variable.BadRequest)
           .send("No permission! Only works for receptionist accounts");
@@ -221,6 +241,7 @@ class BookingsController {
         return res.status(variable.BadRequest).send(err.meta.cause);
       }
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -228,7 +249,10 @@ class BookingsController {
     try {
       let idArray = req.body.idArray;
       let roleIdAuth = req.user.roleId;
-      if (roleIdAuth != variable.ReceptionistRoleId)
+      if (
+        roleIdAuth != variable.ReceptionistRoleId &&
+        roleIdAuth != variable.AdminRoleId
+      )
         return res
           .status(variable.BadRequest)
           .send("No permission! Only works for receptionist accounts");
@@ -238,6 +262,7 @@ class BookingsController {
       res.send("Delete Booking(s) successful!");
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -254,6 +279,7 @@ class BookingsController {
       res.send(bill);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 }

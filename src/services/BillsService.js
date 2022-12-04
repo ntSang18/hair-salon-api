@@ -1,7 +1,9 @@
 const { PrismaClient } = require("@prisma/client");
 const variable = require("../common/variable");
+const groupBy = require("core-js/actual/array/group-by");
 const prisma = new PrismaClient();
 const _ = require("lodash");
+const { isNull } = require("lodash");
 
 exports.createBill = async function (data) {
   try {
@@ -30,7 +32,7 @@ exports.createBill = async function (data) {
       include: {
         staff: true,
         customer: { select: { customerType: true } },
-        booking: {include: {advertisement: true}},
+        booking: { include: { advertisement: true } },
         details: {
           include: {
             service: true,
@@ -122,7 +124,9 @@ exports.deleteBill = async function (id) {
 
 exports.getListBillsByFilter = async function (filter) {
   const page = filter.page ? parseInt(filter.page) : filter.page;
-  const pageSize = filter.pageSize ? parseInt(filter.pageSize) : filter.pageSize;
+  const pageSize = filter.pageSize
+    ? parseInt(filter.pageSize)
+    : filter.pageSize;
   const paginateObj =
     page != undefined && pageSize != undefined
       ? {
@@ -160,6 +164,11 @@ exports.getListBillsByFilter = async function (filter) {
         details: { include: { service: { include: { serviceType: true } } } },
         booking: { include: { advertisement: true } },
       },
+      orderBy: [
+        {
+          createdAt: "desc",
+        },
+      ],
     });
     if (listBillsByFilter) return listBillsByFilter;
   } catch (err) {
@@ -258,7 +267,10 @@ exports.getProfitEachMonth = async function (year) {
         price: true,
       },
     });
-    let dict = _.groupBy(startDay, ({ createdAt }) => new Date(createdAt).getMonth() + 1);
+    let dict = _.groupBy(
+      startDay,
+      ({ createdAt }) => new Date(createdAt).getMonth() + 1
+    );
     const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     let profits = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let keys = [];
@@ -279,6 +291,60 @@ exports.getProfitEachMonth = async function (year) {
     }
     const result = months.map((month, i) => ({ month, profit: profits[i] }));
     return result;
+  } catch (err) {
+    throw err;
+  }
+};
+
+exports.getTopServicesInMonth = async function (year, month) {
+  try {
+    let dateObj = {};
+    let dateHasThirtyDay = [4, 6, 9, 11];
+    let day = 31;
+    if (month == 2) {
+      day = 28;
+    } else {
+      if (dateHasThirtyDay.includes(month)) {
+        day = 30;
+      }
+    }
+    if (year && month)
+      dateObj = {
+        createdAt: {
+          lte: new Date(year, month - 1, day),
+          gte: new Date(year, month - 1, 1),
+        },
+      };
+    const services = await prisma.bills.findMany({
+      where: {
+        ...dateObj,
+      },
+      select: {
+        details: {
+          select: {
+            serviceId: true,
+            service: true,
+          },
+        },
+      },
+    });
+    const filter = services.filter(
+      (item) => JSON.stringify(item.details) !== JSON.stringify([])
+    );
+    const mapFilter = filter.map((item) => item.details);
+    const map2 = [];
+    for (let i = 0; i < mapFilter.length; ++i) {
+      map2.push(...mapFilter[i]);
+    }
+    const map3 = map2.groupBy((item) => item.serviceId);
+    const map4 = [];
+    Object.values(map3).forEach((item) =>
+      map4.push({ service: item[0].service, count: item.length })
+    );
+    map4.sort(function (a, b) {
+      return b.count - a.count;
+    });
+    return map4;
   } catch (err) {
     throw err;
   }

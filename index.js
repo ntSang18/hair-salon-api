@@ -5,7 +5,6 @@ const port = process.env.PORT || 3001;
 var bodyParser = require("body-parser");
 var cron = require("node-cron");
 const Sentry = require("@sentry/node");
-
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
@@ -60,5 +59,5 @@ createWages.start();
 
 route(app);
 
-// module.exports = app;
+module.exports = app;
 app.listen(port, () => console.log(`Server starting on port ${port}!`));
