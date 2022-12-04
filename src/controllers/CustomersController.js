@@ -9,7 +9,12 @@ class CustomersController {
     try {
       let phone = req.body.phone;
       let password = req.body.password;
-      let loginRespone = await customersService.loginCustomer(phone, password);
+      let loginRespone = await customersService.loginCustomer(
+        phone,
+        password,
+        req.get("Host"),
+        req.connection.encrypted
+      );
       if (loginRespone == variable.UnAuthorized)
         return res
           .status(variable.UnAuthorized)
@@ -17,6 +22,7 @@ class CustomersController {
       res.send(loginRespone);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -30,12 +36,14 @@ class CustomersController {
       }
       const customer = await customersService.getCustomerById(
         id,
-        req.get("Host")
+        req.get("Host"),
+        req.connection.encrypted
       );
       if (!customer) return res.status(variable.NoContent).send();
       res.send(customer);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -44,7 +52,8 @@ class CustomersController {
       const listCustomersByFilter =
         await customersService.getListCustomersByFilter(
           req.query,
-          req.get("Host")
+          req.get("Host"),
+          req.connection.encrypted
         );
       if (listCustomersByFilter.length === 0)
         return res.status(variable.NoContent).send();
@@ -56,7 +65,11 @@ class CustomersController {
       if (pageSize) {
         delete req.query.pageSize;
         delete req.query.page;
-        const len = await customersService.getListCustomersByFilter(req.query);
+        const len = await customersService.getListCustomersByFilter(
+          req.query,
+          req.get("Host"),
+          req.connection.encrypted
+        );
         obj.totalPage =
           len.length % pageSize == 0
             ? len.length / pageSize
@@ -66,6 +79,7 @@ class CustomersController {
       res.send(obj);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message + err);
+      throw err;
     }
   }
 
@@ -88,9 +102,7 @@ class CustomersController {
         address: req.body.address,
         password: await bcrypt.hash(password, salt),
         imageName: req.file ? req.file.filename : "",
-        imagePath: req.file
-          ? req.get("Host") + "/src/images/customers/" + req.file.filename
-          : "",
+        imagePath: req.file ? "/src/images/customers/" + req.file.filename : "",
         gender: req.body.gender ? req.body.gender : undefined,
         birthday: req.body.birthday ? new Date(req.body.birthday) : undefined,
         customerTypeId: req.body.customerTypeId
@@ -118,6 +130,7 @@ class CustomersController {
           .send(`No available this ${err.meta.field_name}`);
       }
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -141,9 +154,7 @@ class CustomersController {
         address: req.body.address,
         password: await bcrypt.hash(req.body.password, salt),
         imageName: req.file ? req.file.filename : "",
-        imagePath: req.file
-          ? req.get("Host") + "/src/images/customers/" + req.file.filename
-          : "",
+        imagePath: req.file ? "/src/images/customers/" + req.file.filename : "",
         gender: req.body.gender ? req.body.gender : undefined,
         birthday: req.body.birthday ? new Date(req.body.birthday) : undefined,
         customerTypeId: req.body.customerTypeId
@@ -171,6 +182,7 @@ class CustomersController {
           .send(`No available this ${err.meta.field_name}`);
       }
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -195,7 +207,7 @@ class CustomersController {
       let date = new Date();
       let imageName = req.file ? req.file.filename : undefined;
       let imagePath = req.file
-        ? req.get("Host") + "/src/images/customers/" + req.file.filename
+        ? "/src/images/customers/" + req.file.filename
         : undefined;
       let roleIdAuth = req.user.roleId;
       if (birthday == "Invalid Date") {
@@ -230,7 +242,8 @@ class CustomersController {
       let update = await customersService.updateCustomer(
         id,
         data,
-        req.get("Host")
+        req.get("Host"),
+        req.connection.encrypted
       );
       if (!update) {
         if (req.file) deleteImgByPath(req.file.path);
@@ -245,6 +258,7 @@ class CustomersController {
           .send(`No available this ${err.meta.field_name}`);
       }
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -282,6 +296,7 @@ class CustomersController {
       return res.send(changePassword);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -308,6 +323,7 @@ class CustomersController {
       return res.send(resetPassword);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -321,6 +337,7 @@ class CustomersController {
       res.send("Delete customer successful!");
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -340,6 +357,7 @@ class CustomersController {
       res.send("Delete customer(s) successful!");
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -352,6 +370,7 @@ class CustomersController {
       res.send(token);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 }
