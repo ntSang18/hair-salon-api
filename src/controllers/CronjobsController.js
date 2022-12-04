@@ -7,6 +7,7 @@ class CronjobsController {
       return cancel;
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
   async createWages(req, res) {
@@ -15,6 +16,7 @@ class CronjobsController {
       return create;
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -24,6 +26,7 @@ class CronjobsController {
       return reset;
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 }
