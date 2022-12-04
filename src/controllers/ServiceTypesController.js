@@ -1,6 +1,6 @@
 const variable = require("../common/variable");
 const Joi = require("joi");
-const serviceTypesService = require("../services/serviceTypesService");
+const serviceTypesService = require("../services/ServiceTypesService");
 class serviceTypesController {
   async getListserviceTypesByFilter(req, res) {
     try {
