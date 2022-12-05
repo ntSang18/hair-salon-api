@@ -72,6 +72,7 @@ class NotificationsController {
     }
   }
 
+  
   async updateNotification(req, res) {
     try {
       const id = parseInt(req.params.id);
