@@ -11,6 +11,7 @@ class rolesController {
       res.send(role);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -21,14 +22,14 @@ class rolesController {
       res.send(listRoles);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
   async createRole(req, res) {
     const roleIdAuth = req.user.roleId;
     const { error } = validateRole(req.body);
-    if (error)
-      return res.status(variable.BadRequest).send(error.details[0].message);
+    if (error) return res.status(variable.BadRequest).send(error.details[0].message);
     if (roleIdAuth != variable.AdminRoleId) {
       return res.status(403).send("No permission!");
     }
@@ -41,6 +42,7 @@ class rolesController {
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
+      throw err;
     }
   }
 
@@ -48,17 +50,16 @@ class rolesController {
     try {
       const id = parseInt(req.params.id);
       const roleIdAuth = req.user.roleId;
-      if (roleIdAuth != variable.AdminRoleId)
-        return res.status(variable.Forbidden).send("No permission!");
+      if (roleIdAuth != variable.AdminRoleId) return res.status(variable.Forbidden).send("No permission!");
       let data = {
         name: req.body.name,
       };
       let update = await rolesService.updateRole(id, data);
-      if (!update)
-        return res.status(variable.BadRequest).send("Update role failed!");
+      if (!update) return res.status(variable.BadRequest).send("Update role failed!");
       res.send(update);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -67,15 +68,13 @@ class rolesController {
       let idArray = req.body.idArray;
       let roleIdAuth = req.user.roleId;
       if (roleIdAuth != variable.AdminRoleId)
-        return res
-          .status(variable.BadRequest)
-          .send("No permission! Only works for admin accounts");
+        return res.status(variable.BadRequest).send("No permission! Only works for admin accounts");
       let delManyRoles = await rolesService.deleteManyRoles(idArray);
-      if (delManyRoles == variable.NoContent)
-        return res.status(variable.NoContent).send();
+      if (delManyRoles == variable.NoContent) return res.status(variable.NoContent).send();
       res.send("Delete role(s) successful!");
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 }

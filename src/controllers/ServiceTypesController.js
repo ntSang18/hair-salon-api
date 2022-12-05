@@ -4,22 +4,28 @@ const serviceTypesService = require("../services/ServiceTypesService");
 class serviceTypesController {
   async getListserviceTypesByFilter(req, res) {
     try {
-      const serviceTypes = await serviceTypesService.getListServiceTypes(req.query);
+      const serviceTypes = await serviceTypesService.getListServiceTypes(
+        req.query,
+        req.get("Host"),
+        req.connection.encrypted
+      );
       if (!serviceTypes) return res.status(variable.NoContent).send();
       res.send(serviceTypes);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
   async getServiceTypeById(req, res) {
     const id = parseInt(req.params.id);
     try {
-      const serviceType = await serviceTypesService.getServiceTypeById(id);
+      const serviceType = await serviceTypesService.getServiceTypeById(id, req.get("Host"), req.connection.encrypted);
       if (!serviceType) return res.status(variable.NoContent).send();
       res.send(serviceType);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -34,6 +40,7 @@ class serviceTypesController {
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
+      throw err;
     }
   }
 
@@ -48,6 +55,7 @@ class serviceTypesController {
       res.send(update);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -59,6 +67,7 @@ class serviceTypesController {
       res.send("Delete service Types successful!");
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 }

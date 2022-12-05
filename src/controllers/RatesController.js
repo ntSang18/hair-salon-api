@@ -10,6 +10,7 @@ class ratesController {
       res.send(rate);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -20,14 +21,14 @@ class ratesController {
       res.send(listrates);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
   async createRate(req, res) {
     const customerId = req.user.Id;
     const { error } = validateRate(req.body);
-    if (error)
-      return res.status(variable.BadRequest).send(error.details[0].message);
+    if (error) return res.status(variable.BadRequest).send(error.details[0].message);
     try {
       const data = {
         rate: req.body.rate,
@@ -36,17 +37,12 @@ class ratesController {
         customerId: parseInt(customerId),
       };
       const result = await ratesService.createRate(data);
-      if (result === variable.BadRequest)
-        return res
-          .status(variable.BadRequest)
-          .send("This booking is not completed");
+      if (result === variable.BadRequest) return res.status(variable.BadRequest).send("This booking is not completed");
       res.send(result);
     } catch (err) {
-      if (err.code === "P2002")
-        return res
-          .status(variable.BadRequest)
-          .send("You have rated this booking");
+      if (err.code === "P2002") return res.status(variable.BadRequest).send("You have rated this booking");
       res.status(variable.BadRequest).send(err.message);
+      throw err;
     }
   }
 
@@ -54,17 +50,16 @@ class ratesController {
     try {
       const id = parseInt(req.params.id);
       const rateIdAuth = req.user.rateId;
-      if (rateIdAuth != variable.AdminrateId)
-        return res.status(variable.Forbidden).send("No permission!");
+      if (rateIdAuth != variable.AdminrateId) return res.status(variable.Forbidden).send("No permission!");
       let data = {
         name: req.body.name,
       };
       let update = await ratesService.updaterate(id, data);
-      if (!update)
-        return res.status(variable.BadRequest).send("Update rate failed!");
+      if (!update) return res.status(variable.BadRequest).send("Update rate failed!");
       res.send(update);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -73,15 +68,13 @@ class ratesController {
       let idArray = req.body.idArray;
       let rateIdAuth = req.user.rateId;
       if (rateIdAuth != variable.AdminrateId)
-        return res
-          .status(variable.BadRequest)
-          .send("No permission! Only works for admin accounts");
+        return res.status(variable.BadRequest).send("No permission! Only works for admin accounts");
       let delManyrates = await ratesService.deleteManyrates(idArray);
-      if (delManyrates == variable.NoContent)
-        return res.status(variable.NoContent).send();
+      if (delManyrates == variable.NoContent) return res.status(variable.NoContent).send();
       res.send("Delete rate(s) successful!");
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
   async getStaffsWithRate(req, res) {
@@ -90,6 +83,7 @@ class ratesController {
       res.send(staffsWithRate);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 }

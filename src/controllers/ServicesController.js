@@ -8,6 +8,7 @@ class servicesController {
       res.send(services);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -19,6 +20,7 @@ class servicesController {
       res.send(service);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -30,9 +32,7 @@ class servicesController {
         name: req.body.name,
         price: parseInt(req.body.price),
         imageName: req.file ? req.file.filename : "",
-        imagePath: req.file
-          ? req.get("Host") + "/src/images/services/" + req.file.filename
-          : "",
+        imagePath: req.file ? req.get("Host") + "/src/images/services/" + req.file.filename : "",
         serviceTypeId: parseInt(req.body.serviceTypeId),
         description: req.body.description ? req.body.description : "",
         createdAt: date,
@@ -42,6 +42,7 @@ class servicesController {
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
+      throw err;
     }
   }
 
@@ -54,9 +55,7 @@ class servicesController {
         name: req.body.name,
         price: parseInt(req.body.price),
         imageName: req.file ? req.file.filename : "",
-        imagePath: req.file
-          ? req.get("Host") + "/src/images/services/" + req.file.filename
-          : "",
+        imagePath: req.file ? req.get("Host") + "/src/images/services/" + req.file.filename : "",
         serviceTypeId: req.body.serviceTypeId,
         description: req.body.description,
         createdAt: date,
@@ -67,6 +66,7 @@ class servicesController {
       res.send(update);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -78,6 +78,7 @@ class servicesController {
       res.send("Delete service successful!");
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 }
