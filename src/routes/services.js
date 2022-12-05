@@ -6,23 +6,25 @@ const servicesController = require("../controllers/ServicesController");
 var uploadFile = upload.single("images");
 const fileSizeLimitErrorHandler = (err, req, res, next) => {
   if (err) {
-    res.send(413);
+    res.status(variable.BadRequest).send(err.message);
   } else {
     next();
   }
 };
 
 router.post(
-    "/",
-    [uploadFile, fileSizeLimitErrorHandler],auth,
-    servicesController.createService
-  );
+  "/",
+  [uploadFile, fileSizeLimitErrorHandler],
+  auth,
+  servicesController.createService
+);
 
-  router.patch(
-    "/:id",
-    [uploadFile, fileSizeLimitErrorHandler],auth,
-    servicesController.updateService
-  );
+router.patch(
+  "/:id",
+  [uploadFile, fileSizeLimitErrorHandler],
+  auth,
+  servicesController.updateService
+);
 router.get("/", servicesController.getListServicesByFilter);
 router.get("/:id", servicesController.getServiceById);
 router.post("/", auth, servicesController.createService);
