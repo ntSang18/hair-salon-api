@@ -9,6 +9,7 @@ class BillsController {
       res.send(bill);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -32,6 +33,7 @@ class BillsController {
       res.send(obj);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -65,6 +67,7 @@ class BillsController {
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
+      throw err;
     }
   }
 
@@ -89,6 +92,7 @@ class BillsController {
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
+      throw err;
     }
   }
 
@@ -112,6 +116,7 @@ class BillsController {
         return res.status(variable.BadRequest).send(err.meta.cause);
       }
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
   async getStaffsOrderByBills(req, res) {
@@ -120,6 +125,7 @@ class BillsController {
       res.send(billsOrderBy);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -130,6 +136,22 @@ class BillsController {
       res.send(profits);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
+    }
+  }
+
+  async getTopServicesInMonth(req, res) {
+    try {
+      const year = req.query.year;
+      const month = req.query.month;
+      const services = await billsService.getTopServicesInMonth(
+        parseInt(year),
+        parseInt(month)
+      );
+      res.send(services);
+    } catch (err) {
+      res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 }

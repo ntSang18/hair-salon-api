@@ -3,10 +3,11 @@ const router = express.Router();
 const auth = require("../middleware/auth");
 const upload = require("../middleware/uploadStaff");
 const staffsController = require("../controllers/StaffsController");
+const variable = require("../common/variable");
 var uploadFile = upload.single("images");
 const fileSizeLimitErrorHandler = (err, req, res, next) => {
   if (err) {
-    res.send(413);
+    res.status(variable.BadRequest).send(err.message);
   } else {
     next();
   }

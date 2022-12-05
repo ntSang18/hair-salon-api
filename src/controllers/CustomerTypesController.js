@@ -11,6 +11,7 @@ class customerTypesController {
       res.send(customerType);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -22,6 +23,7 @@ class customerTypesController {
       res.send(listCustomerTypes);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -45,6 +47,7 @@ class customerTypesController {
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
+      throw err;
     }
   }
 
@@ -65,6 +68,7 @@ class customerTypesController {
       res.send(update);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -83,6 +87,7 @@ class customerTypesController {
       res.send("Delete customerTypes successful!");
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 }

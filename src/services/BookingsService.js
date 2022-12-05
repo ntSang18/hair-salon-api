@@ -47,7 +47,12 @@ exports.getBill = async function (id) {
         staff: true,
         customer: { include: { customerType: true } },
         details: { include: { service: { include: { serviceType: true } } } },
-        booking: { include: { details: { include: { service: true } }, advertisement: true } },
+        booking: {
+          include: {
+            details: { include: { service: true } },
+            advertisement: true,
+          },
+        },
       },
     });
     return bill;
@@ -75,7 +80,9 @@ exports.getBookingById = async function (id) {
 
 exports.getListBookingsByFilter = async function (filter) {
   const page = filter.page ? parseInt(filter.page) : filter.page;
-  const pageSize = filter.pageSize ? parseInt(filter.pageSize) : filter.pageSize;
+  const pageSize = filter.pageSize
+    ? parseInt(filter.pageSize)
+    : filter.pageSize;
   const paginateObj =
     page != undefined && pageSize != undefined
       ? {
@@ -84,9 +91,15 @@ exports.getListBookingsByFilter = async function (filter) {
         }
       : {};
   const status = filter.status ? filter.status : "";
-  const isDeleted = filter.isDeleted ? (filter.isDeleted === "false" ? false : true) : undefined;
+  const isDeleted = filter.isDeleted
+    ? filter.isDeleted === "false"
+      ? false
+      : true
+    : undefined;
   const staffId = filter.staffId ? parseInt(filter.staffId) : undefined;
-  const customerId = filter.customerId ? parseInt(filter.customerId) : undefined;
+  const customerId = filter.customerId
+    ? parseInt(filter.customerId)
+    : undefined;
   const startDate = filter.startDate ? new Date(filter.startDate) : "";
   const endDate = filter.endDate ? new Date(filter.endDate) : "";
   const date = filter.date ? new Date(filter.date) : "";
@@ -94,8 +107,15 @@ exports.getListBookingsByFilter = async function (filter) {
   if (startDate && endDate) {
     dateObj = {
       date: {
-        lte: new Date(new Date(endDate.setHours(23, 59, 59, 999)).toString().split("GMT")[0] + " UTC").toISOString(),
-        gte: new Date(new Date(startDate.setHours(0, 0, 0, 0)).toString().split("GMT")[0] + " UTC").toISOString(),
+        lte: new Date(
+          new Date(endDate.setHours(23, 59, 59, 999))
+            .toString()
+            .split("GMT")[0] + " UTC"
+        ).toISOString(),
+        gte: new Date(
+          new Date(startDate.setHours(0, 0, 0, 0)).toString().split("GMT")[0] +
+            " UTC"
+        ).toISOString(),
       },
     };
   }
@@ -148,7 +168,12 @@ exports.updateBooking = async function (id, data, customerId, roleIdAuth) {
         },
       },
     });
-    if (findBooking.customerId != customerId && roleIdAuth != variable.ReceptionistRoleId) return variable.Forbidden;
+    if (
+      findBooking.customerId != customerId &&
+      roleIdAuth != variable.ReceptionistRoleId &&
+      roleIdAuth != variable.AdminRoleId
+    )
+      return variable.Forbidden;
     const filterBooking = findBooking.details.map((item) => item.serviceId);
     const duplicateService = data.details.create
       .filter((item) => filterBooking.includes(item.serviceId))
@@ -165,10 +190,16 @@ exports.updateBooking = async function (id, data, customerId, roleIdAuth) {
     let [bookingResponse, adsResponse] = [];
     if (findBooking && findBooking.advertisementId) {
       let amount = undefined;
-      if (findBooking.status !== variable.ConfirmBooking && data.status === variable.ConfirmBooking) {
+      if (
+        findBooking.status !== variable.ConfirmBooking &&
+        data.status === variable.ConfirmBooking
+      ) {
         amount = { increment: 1 };
       }
-      if (findBooking.status === variable.ConfirmBooking && data.status !== variable.ConfirmBooking) {
+      if (
+        findBooking.status === variable.ConfirmBooking &&
+        data.status !== variable.ConfirmBooking
+      ) {
         amount = { increment: -1 };
       }
       [bookingResponse, adsResponse] = await prisma.$transaction([
@@ -223,7 +254,8 @@ exports.updateManyStatuesBooking = async function (idArray, status) {
 exports.deleteBooking = async function (id, customerId) {
   try {
     let findBooking = await prisma.bookings.findFirst({ where: { Id: id } });
-    if (findBooking && findBooking.customerId != customerId) return variable.Forbidden;
+    if (findBooking && findBooking.customerId != customerId)
+      return variable.Forbidden;
     let delBooking = await prisma.bookings.delete({
       where: { Id: id },
     });
@@ -236,7 +268,8 @@ exports.deleteBooking = async function (id, customerId) {
 exports.softDeleteBooking = async function (id, customerId) {
   try {
     let findBooking = await prisma.bookings.findFirst({ where: { Id: id } });
-    if (findBooking && findBooking.customerId != customerId) return variable.Forbidden;
+    if (findBooking && findBooking.customerId != customerId)
+      return variable.Forbidden;
     let delBooking = await prisma.bookings.update({
       where: { Id: id },
       data: {

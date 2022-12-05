@@ -10,6 +10,7 @@ class NotificationsController {
       res.send(notification);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -20,6 +21,7 @@ class NotificationsController {
       res.send(listnotifications);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 
@@ -41,6 +43,7 @@ class NotificationsController {
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
+      throw err;
     }
   }
   async createManyNotification(req, res) {
@@ -65,9 +68,11 @@ class NotificationsController {
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
+      throw err;
     }
   }
 
+  
   async updateNotification(req, res) {
     try {
       const id = parseInt(req.params.id);
@@ -79,6 +84,7 @@ class NotificationsController {
       res.send(update);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
+      throw err;
     }
   }
 }
