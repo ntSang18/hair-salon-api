@@ -15,33 +15,20 @@ exports.loginCustomer = async function (phone, password, host, encrypted) {
       include: { customerType: true },
     });
     if (!isValidCustomer) return variable.UnAuthorized;
-    let isValidPassword = await bcrypt.compare(
-      password,
-      isValidCustomer.password
-    );
+    let isValidPassword = await bcrypt.compare(password, isValidCustomer.password);
     if (!isValidPassword) return variable.UnAuthorized;
     delete isValidCustomer.password;
     if (isValidCustomer.imageName) {
       isValidCustomer.imagePath = encrypted
-        ? "https://" +
-          host +
-          "/src/images/customters/" +
-          isValidCustomer.imageName
-        : "http://" +
-          host +
-          "/src/images/customters/" +
-          isValidCustomer.imageName;
+        ? "https://" + host + "/src/images/customters/" + isValidCustomer.imageName
+        : "http://" + host + "/src/images/customters/" + isValidCustomer.imageName;
     }
     const token = jwt.sign(isValidCustomer, tokenConfig.secret, {
       expiresIn: tokenConfig.tokenLife,
     });
-    const refreshToken = jwt.sign(
-      isValidCustomer,
-      tokenConfig.refreshTokenSecret,
-      {
-        expiresIn: tokenConfig.refreshTokenLife,
-      }
-    );
+    const refreshToken = jwt.sign(isValidCustomer, tokenConfig.refreshTokenSecret, {
+      expiresIn: tokenConfig.refreshTokenLife,
+    });
     await prisma.refreshTokens.create({
       data: {
         refreshToken: refreshToken,
@@ -74,13 +61,9 @@ exports.registerCustomer = async function (data) {
     const token = jwt.sign(registerCustomer, tokenConfig.secret, {
       expiresIn: tokenConfig.tokenLife,
     });
-    const refreshToken = jwt.sign(
-      registerCustomer,
-      tokenConfig.refreshTokenSecret,
-      {
-        expiresIn: tokenConfig.refreshTokenLife,
-      }
-    );
+    const refreshToken = jwt.sign(registerCustomer, tokenConfig.refreshTokenSecret, {
+      expiresIn: tokenConfig.refreshTokenLife,
+    });
     await prisma.refreshTokens.create({
       data: {
         refreshToken: refreshToken,
@@ -115,9 +98,7 @@ exports.getCustomerById = async function (id, host, encrypted) {
 
 exports.getListCustomersByFilter = async function (filter, host, encrypted) {
   const page = filter.page ? parseInt(filter.page) : filter.page;
-  const pageSize = filter.pageSize
-    ? parseInt(filter.pageSize)
-    : filter.pageSize;
+  const pageSize = filter.pageSize ? parseInt(filter.pageSize) : filter.pageSize;
   const name = filter.name ? filter.name : "";
   const paginateObj =
     page != undefined && pageSize != undefined
@@ -130,8 +111,7 @@ exports.getListCustomersByFilter = async function (filter, host, encrypted) {
   const orderBy = filter.orderBy ? filter.orderBy : "";
   let orderByFilter = {};
   orderByFilter = orderBy === "new" ? { orderBy: { Id: "desc" } } : {};
-  if (filter.customerTypeId)
-    customerTypeObj.customerTypeId = parseInt(filter.customerTypeId);
+  if (filter.customerTypeId) customerTypeObj.customerTypeId = parseInt(filter.customerTypeId);
   try {
     if (customerTypeObj.customerTypeId != 0) {
       var listCustomersByFilter = await prisma.customers.findMany({
@@ -158,8 +138,8 @@ exports.getListCustomersByFilter = async function (filter, host, encrypted) {
       listCustomersByFilter.forEach((item) => {
         if (item.imageName) {
           item.imagePath = encrypted
-            ? "https://" + host + "/src/images/customers/" + customer.imageName
-            : "http://" + host + "/src/images/customers/" + customer.imageName;
+            ? "https://" + host + "/src/images/customers/" + item.imageName
+            : "http://" + host + "/src/images/customers/" + item.imageName;
         }
       });
     }
@@ -185,12 +165,7 @@ exports.updateCustomer = async function (id, data, host, encrypted) {
         data.imagePath = encrypted
           ? "https://" + host + "/src/images/customers/" + customer.imageName
           : "http://" + host + "/src/images/customers/" + customer.imageName;
-        deleteImgByPath(
-          path.join(
-            __dirname,
-            "../../src/images/customers/" + oldCustomer.imageName
-          )
-        );
+        deleteImgByPath(path.join(__dirname, "../../src/images/customers/" + oldCustomer.imageName));
       }
     }
     return customer;
@@ -205,10 +180,7 @@ exports.changePassword = async function (id, data, roleIdAuth) {
       let findCustomer = await prisma.customers.findFirst({
         where: { Id: id },
       });
-      let isValidPassword = await bcrypt.compare(
-        data.oldPassword,
-        findCustomer.password
-      );
+      let isValidPassword = await bcrypt.compare(data.oldPassword, findCustomer.password);
       if (!isValidPassword) return variable.UnAuthorized;
     }
     delete data.oldPassword;
@@ -286,10 +258,7 @@ exports.refreshToken = async function (refreshToken) {
       where: { refreshToken: refreshToken },
     });
     if (!checkrefreshToken) return variable.UnAuthorized;
-    const decodedRefreshToken = await utils.verifyJwtToken(
-      refreshToken,
-      tokenConfig.refreshTokenSecret
-    );
+    const decodedRefreshToken = await utils.verifyJwtToken(refreshToken, tokenConfig.refreshTokenSecret);
     let customer = await prisma.customers.findFirst({
       where: { Id: decodedRefreshToken.id },
     });
