@@ -5,7 +5,9 @@ const prisma = new PrismaClient();
 
 exports.getListServiceTypes = async function (filter, host, encrypted) {
   const page = filter.page ? parseInt(filter.page) : filter.page;
-  const pageSize = filter.pageSize ? parseInt(filter.pageSize) : filter.pageSize;
+  const pageSize = filter.pageSize
+    ? parseInt(filter.pageSize)
+    : filter.pageSize;
   const paginateObj =
     page != undefined && pageSize != undefined
       ? {
@@ -30,8 +32,8 @@ exports.getListServiceTypes = async function (filter, host, encrypted) {
         listService.services.forEach((item) => {
           if (item.imageName) {
             item.imagePath = encrypted
-              ? "https://" + host + "/src/images/services/" + item.imageName
-              : "http://" + host + "/src/images/services/" + item.imageName;
+              ? HOST_USER_SERVICE + "src/images/services/" + item.imageName
+              : HOST_USER_SERVICE + "src/images/services/" + item.imageName;
           }
         });
       }
@@ -52,8 +54,8 @@ exports.getServiceTypeById = async function (id, host, encrypted) {
       serviceType.services.forEach((item) => {
         if (item.imageName) {
           item.imagePath = encrypted
-            ? "https://" + host + "/src/images/services/" + item.imageName
-            : "http://" + host + "/src/images/services/" + item.imageName;
+            ? HOST_USER_SERVICE + "src/images/services/" + item.imageName
+            : HOST_USER_SERVICE + "src/images/services/" + item.imageName;
         }
       });
     }
