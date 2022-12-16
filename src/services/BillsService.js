@@ -124,9 +124,7 @@ exports.deleteBill = async function (id) {
 
 exports.getListBillsByFilter = async function (filter) {
   const page = filter.page ? parseInt(filter.page) : filter.page;
-  const pageSize = filter.pageSize
-    ? parseInt(filter.pageSize)
-    : filter.pageSize;
+  const pageSize = filter.pageSize ? parseInt(filter.pageSize) : filter.pageSize;
   const paginateObj =
     page != undefined && pageSize != undefined
       ? {
@@ -267,10 +265,7 @@ exports.getProfitEachMonth = async function (year) {
         price: true,
       },
     });
-    let dict = _.groupBy(
-      startDay,
-      ({ createdAt }) => new Date(createdAt).getMonth() + 1
-    );
+    let dict = _.groupBy(startDay, ({ createdAt }) => new Date(createdAt).getMonth() + 1);
     const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     let profits = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let keys = [];
@@ -328,9 +323,7 @@ exports.getTopServicesInMonth = async function (year, month) {
         },
       },
     });
-    const filter = services.filter(
-      (item) => JSON.stringify(item.details) !== JSON.stringify([])
-    );
+    const filter = services.filter((item) => JSON.stringify(item.details) !== JSON.stringify([]));
     const mapFilter = filter.map((item) => item.details);
     const map2 = [];
     for (let i = 0; i < mapFilter.length; ++i) {
@@ -338,9 +331,7 @@ exports.getTopServicesInMonth = async function (year, month) {
     }
     const map3 = map2.groupBy((item) => item.serviceId);
     const map4 = [];
-    Object.values(map3).forEach((item) =>
-      map4.push({ service: item[0].service, count: item.length })
-    );
+    Object.values(map3).forEach((item) => map4.push({ service: item[0].service, count: item.length }));
     map4.sort(function (a, b) {
       return b.count - a.count;
     });

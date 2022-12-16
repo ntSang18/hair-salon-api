@@ -5,10 +5,7 @@ class AdvertisementsController {
   async getAdvertisementById(req, res) {
     const id = parseInt(req.params.id);
     try {
-      const advertisement = await advertisementsService.getAdvertisementById(
-        id,
-        req.get("Host")
-      );
+      const advertisement = await advertisementsService.getAdvertisementById(id, req.get("Host"));
       if (!advertisement) return res.status(variable.NoContent).send();
       res.send(advertisement);
     } catch (err) {
@@ -19,11 +16,8 @@ class AdvertisementsController {
 
   async getListAdvertisements(req, res) {
     try {
-      const advertisements = await advertisementsService.getListAdvertisements(
-        req.get("Host")
-      );
-      if (advertisements.length === 0)
-        return res.status(variable.NoContent).send();
+      const advertisements = await advertisementsService.getListAdvertisements(req.get("Host"));
+      if (advertisements.length === 0) return res.status(variable.NoContent).send();
       res.send(advertisements);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message + err);
@@ -43,9 +37,7 @@ class AdvertisementsController {
       res.send(result);
     } catch (err) {
       if (err.code === "P2003") {
-        return res
-          .status(variable.BadRequest)
-          .send(`No available this ${err.meta.field_name}`);
+        return res.status(variable.BadRequest).send(`No available this ${err.meta.field_name}`);
       }
       res.status(variable.InternalServerError).send(err.message);
       throw err;
