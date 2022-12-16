@@ -2,10 +2,13 @@ const { PrismaClient } = require("@prisma/client");
 const { equal } = require("joi");
 const { NoContent } = require("../common/variable");
 const prisma = new PrismaClient();
+const { HOST_USER_SERVICE } = require("../common/HOST_SERVICE");
 
 exports.getListServiceTypes = async function (filter, host, encrypted) {
   const page = filter.page ? parseInt(filter.page) : filter.page;
-  const pageSize = filter.pageSize ? parseInt(filter.pageSize) : filter.pageSize;
+  const pageSize = filter.pageSize
+    ? parseInt(filter.pageSize)
+    : filter.pageSize;
   const paginateObj =
     page != undefined && pageSize != undefined
       ? {
@@ -30,8 +33,8 @@ exports.getListServiceTypes = async function (filter, host, encrypted) {
         listService.services.forEach((item) => {
           if (item.imageName) {
             item.imagePath = encrypted
-              ? "https://" + host + "/src/images/services/" + item.imageName
-              : "http://" + host + "/src/images/services/" + item.imageName;
+              ? HOST_USER_SERVICE + "src/images/services/" + item.imageName
+              : HOST_USER_SERVICE + "src/images/services/" + item.imageName;
           }
         });
       }
@@ -52,8 +55,8 @@ exports.getServiceTypeById = async function (id, host, encrypted) {
       serviceType.services.forEach((item) => {
         if (item.imageName) {
           item.imagePath = encrypted
-            ? "https://" + host + "/src/images/services/" + item.imageName
-            : "http://" + host + "/src/images/services/" + item.imageName;
+            ? HOST_USER_SERVICE + "src/images/services/" + item.imageName
+            : HOST_USER_SERVICE + "src/images/services/" + item.imageName;
         }
       });
     }
