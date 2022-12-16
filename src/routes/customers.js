@@ -6,7 +6,7 @@ const customersController = require("../controllers/CustomersController");
 var uploadFile = upload.single("images");
 const fileSizeLimitErrorHandler = (err, req, res, next) => {
   if (err) {
-    res.status(variable.BadRequest).send(err.message);
+     res.status(variable.BadRequest).send(err.message);
   } else {
     next();
   }

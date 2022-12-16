@@ -7,6 +7,7 @@ const tokenConfig = require("../common/tokenConfig");
 const utils = require("../utils/utils");
 const path = require("path");
 const fs = require("fs");
+const { HOST_USER_SERVICE } = require("../common/HOST_SERVICE");
 
 exports.loginCustomer = async function (phone, password, host, encrypted) {
   try {
@@ -22,15 +23,10 @@ exports.loginCustomer = async function (phone, password, host, encrypted) {
     if (!isValidPassword) return variable.UnAuthorized;
     delete isValidCustomer.password;
     if (isValidCustomer.imageName) {
-      isValidCustomer.imagePath = encrypted
-        ? "https://" +
-          host +
-          "/src/images/customters/" +
-          isValidCustomer.imageName
-        : "http://" +
-          host +
-          "/src/images/customters/" +
-          isValidCustomer.imageName;
+      isValidCustomer.imagePath =
+        HOST_USER_SERVICE +
+        "src/images/customters/" +
+        isValidCustomer.imageName;
     }
     const token = jwt.sign(isValidCustomer, tokenConfig.secret, {
       expiresIn: tokenConfig.tokenLife,
@@ -102,9 +98,8 @@ exports.getCustomerById = async function (id, host, encrypted) {
     if (customer) {
       delete customer.password;
       if (customer.imageName) {
-        customer.imagePath = encrypted
-          ? "https://" + host + "/src/images/customers/" + customer.imageName
-          : "http://" + host + "/src/images/customers/" + customer.imageName;
+        customer.imagePath =
+          HOST_USER_SERVICE + "src/images/customers/" + customer.imageName;
       }
     }
     return customer;
@@ -157,9 +152,8 @@ exports.getListCustomersByFilter = async function (filter, host, encrypted) {
     if (listCustomersByFilter.length > 0) {
       listCustomersByFilter.forEach((item) => {
         if (item.imageName) {
-          item.imagePath = encrypted
-            ? "https://" + host + "/src/images/customers/" + customer.imageName
-            : "http://" + host + "/src/images/customers/" + customer.imageName;
+          item.imagePath =
+            HOST_USER_SERVICE + "/src/images/customers/" + item.imageName;
         }
       });
     }
@@ -171,7 +165,9 @@ exports.getListCustomersByFilter = async function (filter, host, encrypted) {
 
 exports.updateCustomer = async function (id, data, host, encrypted) {
   try {
-    let oldCustomer = await prisma.customers.findFirst({ where: { Id: id } });
+    let oldCustomer = await prisma.customers.findFirst({
+      where: { Id: id },
+    });
     let customer = await prisma.customers.update({
       where: { Id: id },
       data,
@@ -182,9 +178,8 @@ exports.updateCustomer = async function (id, data, host, encrypted) {
     if (customer) {
       delete customer.password;
       if (data.imageName) {
-        data.imagePath = encrypted
-          ? "https://" + host + "/src/images/customers/" + customer.imageName
-          : "http://" + host + "/src/images/customers/" + customer.imageName;
+        customer.imagePath =
+          HOST_USER_SERVICE + "src/images/customers/" + customer.imageName;
         deleteImgByPath(
           path.join(
             __dirname,
@@ -250,7 +245,9 @@ exports.resetPassword = async function (data) {
 
 exports.deleteCustomer = async function (id) {
   try {
-    let oldCustomer = await prisma.customers.findFirst({ where: { Id: id } });
+    let oldCustomer = await prisma.customers.findFirst({
+      where: { Id: id },
+    });
     let delCustomer = await prisma.customers.delete({
       where: { Id: id },
       include: { customerType: true },

@@ -8,6 +8,7 @@ const utils = require("../utils/utils");
 const path = require("path");
 const groupBy = require("core-js/actual/array/group-by");
 const fs = require("fs");
+const { HOST_USER_SERVICE } = require("../common/HOST_SERVICE");
 
 exports.loginStaff = async function (phone, password, host, encrypted) {
   try {
@@ -19,16 +20,19 @@ exports.loginStaff = async function (phone, password, host, encrypted) {
     if (!isValidPassword) return variable.UnAuthorized;
     delete isValidStaff.password;
     if (isValidStaff.imageName) {
-      isValidStaff.imagePath = encrypted
-        ? "https://" + host + "/src/images/staffs/" + isValidStaff.imageName
-        : "http://" + host + "/src/images/staffs/" + isValidStaff.imageName;
+      isValidStaff.imagePath =
+        HOST_USER_SERVICE + "src/images/staffs/" + isValidStaff.imageName;
     }
     const token = jwt.sign(isValidStaff, tokenConfig.secret, {
       expiresIn: tokenConfig.tokenLife,
     });
-    const refreshToken = jwt.sign(isValidStaff, tokenConfig.refreshTokenSecret, {
-      expiresIn: tokenConfig.refreshTokenLife,
-    });
+    const refreshToken = jwt.sign(
+      isValidStaff,
+      tokenConfig.refreshTokenSecret,
+      {
+        expiresIn: tokenConfig.refreshTokenLife,
+      }
+    );
     await prisma.refreshTokens.create({
       data: {
         refreshToken: refreshToken,
@@ -65,9 +69,8 @@ exports.getStaffById = async function (id, host, encrypted) {
     if (staff) {
       delete staff.password;
       if (staff.imageName) {
-        staff.imagePath = encrypted
-          ? "https://" + host + "/src/images/staffs/" + staff.imageName
-          : "http://" + host + "/src/images/staffs/" + staff.imageName;
+        staff.imagePath =
+          HOST_USER_SERVICE + "src/images/staffs/" + staff.imageName;
       }
     }
     return staff;
@@ -78,7 +81,9 @@ exports.getStaffById = async function (id, host, encrypted) {
 
 exports.getListStaffsByFilter = async function (filter, host, encrypted) {
   const page = filter.page ? parseInt(filter.page) : filter.page;
-  const pageSize = filter.pageSize ? parseInt(filter.pageSize) : filter.pageSize;
+  const pageSize = filter.pageSize
+    ? parseInt(filter.pageSize)
+    : filter.pageSize;
   const paginateObj =
     page != undefined && pageSize != undefined
       ? {
@@ -100,9 +105,11 @@ exports.getListStaffsByFilter = async function (filter, host, encrypted) {
   const roleAndDepartmentObj = {};
   let orderByFilter = {};
   orderByFilter = orderBy === "new" ? { orderBy: { Id: "desc" } } : {};
-  orderByFilter = orderBy === "bills" ? { orderBy: { bills: { _count: "desc" } } } : {};
+  orderByFilter =
+    orderBy === "bills" ? { orderBy: { bills: { _count: "desc" } } } : {};
   if (filter.roleId) roleAndDepartmentObj.roleId = parseInt(filter.roleId);
-  if (filter.departmentId) roleAndDepartmentObj.departmentId = parseInt(filter.departmentId);
+  if (filter.departmentId)
+    roleAndDepartmentObj.departmentId = parseInt(filter.departmentId);
   const name = filter.name ? filter.name : "";
   try {
     const listStaffsByFilter = await prisma.staffs.findMany({
@@ -134,9 +141,8 @@ exports.getListStaffsByFilter = async function (filter, host, encrypted) {
       listStaffsByFilter.forEach((item) => {
         item.avg = staffsWithAvgRate[item.Id];
         if (item.imageName) {
-          item.imagePath = encrypted
-            ? "https://" + host + "/src/images/staffs/" + item.imageName
-            : "http://" + host + "/src/images/staffs/" + item.imageName;
+          item.imagePath =
+            HOST_USER_SERVICE + "src/images/staffs/" + item.imageName;
         }
       });
     }
@@ -148,7 +154,9 @@ exports.getListStaffsByFilter = async function (filter, host, encrypted) {
 
 exports.getStaffsWithWage = async function (filter, host) {
   const page = filter.page ? parseInt(filter.page) : filter.page;
-  const pageSize = filter.pageSize ? parseInt(filter.pageSize) : filter.pageSize;
+  const pageSize = filter.pageSize
+    ? parseInt(filter.pageSize)
+    : filter.pageSize;
   const paginateObj =
     page != undefined && pageSize != undefined
       ? {
@@ -163,7 +171,8 @@ exports.getStaffsWithWage = async function (filter, host) {
   let orderByFilter = {};
   orderByFilter = orderBy === "new" ? { orderBy: { Id: "desc" } } : {};
   if (filter.roleId) roleAndDepartmentObj.roleId = parseInt(filter.roleId);
-  if (filter.departmentId) roleAndDepartmentObj.departmentId = parseInt(filter.departmentId);
+  if (filter.departmentId)
+    roleAndDepartmentObj.departmentId = parseInt(filter.departmentId);
   const name = filter.name ? filter.name : "";
   if (month && year) {
     selectStaffsWithWage.select.wages = { where: { month: month, year: year } };
@@ -205,10 +214,11 @@ exports.updateStaff = async function (id, data, host, encrypted) {
     if (staff) {
       delete staff.password;
       if (staff.imageName) {
-        staff.imagePath = encrypted
-          ? "https://" + host + "/src/images/staffs/" + staff.imageName
-          : "http://" + host + "/src/images/staffs/" + staff.imageName;
-        deleteImgByPath(path.join(__dirname, "../../src/images/staffs/" + oldStaff.imageName));
+        staff.imagePath =
+          HOST_USER_SERVICE + "src/images/staffs/" + staff.imageName;
+        deleteImgByPath(
+          path.join(__dirname, "../../src/images/staffs/" + oldStaff.imageName)
+        );
       }
     }
     return staff;
@@ -220,7 +230,10 @@ exports.updateStaff = async function (id, data, host, encrypted) {
 exports.changePassword = async function (id, data, roleIdAuth) {
   try {
     let findStaff = await prisma.staffs.findFirst({ where: { Id: id } });
-    let isValidPassword = await bcrypt.compare(data.oldPassword, findStaff.password);
+    let isValidPassword = await bcrypt.compare(
+      data.oldPassword,
+      findStaff.password
+    );
     if (!isValidPassword) return variable.UnAuthorized;
     delete data.oldPassword;
     let changePass = await prisma.staffs.update({
@@ -275,7 +288,10 @@ exports.refreshToken = async function (refreshToken) {
       where: { refreshToken: refreshToken },
     });
     if (!checkrefreshToken) return variable.UnAuthorized;
-    const decodedRefreshToken = await utils.verifyJwtToken(refreshToken, tokenConfig.refreshTokenSecret);
+    const decodedRefreshToken = await utils.verifyJwtToken(
+      refreshToken,
+      tokenConfig.refreshTokenSecret
+    );
     let staff = await prisma.staffs.findFirst({
       where: { Id: decodedRefreshToken.id },
     });

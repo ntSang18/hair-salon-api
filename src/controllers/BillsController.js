@@ -25,10 +25,7 @@ class BillsController {
         delete req.query.pageSize;
         delete req.query.page;
         const len = await billsService.getListBillsByFilter(req.query);
-        obj.totalPage =
-          len.length % pageSize == 0
-            ? len.length / pageSize
-            : Math.floor(len.length / pageSize) + 1;
+        obj.totalPage = len.length % pageSize == 0 ? len.length / pageSize : Math.floor(len.length / pageSize) + 1;
       }
       res.send(obj);
     } catch (err) {
@@ -39,14 +36,11 @@ class BillsController {
 
   async createBill(req, res) {
     const price = req.body.price;
-    if (!price)
-      return res.status(variable.BadRequest).send("Price field is missing");
+    if (!price) return res.status(variable.BadRequest).send("Price field is missing");
     const date = new Date();
     date.setHours(date.getHours() + 7);
     const serviceArray = req.body.serviceArray;
-    const serviceArrayMap = serviceArray?.map(
-      (item) => new Object({ serviceId: item })
-    );
+    const serviceArrayMap = serviceArray?.map((item) => new Object({ serviceId: item }));
     const dataWithoutBooking = {
       createdAt: date,
       updatedAt: date,
@@ -62,8 +56,7 @@ class BillsController {
     try {
       const data = dataWithoutBooking;
       const result = await billsService.createBill(data);
-      if (result === variable.BadRequest)
-        return res.status(variable.BadRequest).send("Invalid promo code");
+      if (result === variable.BadRequest) return res.status(variable.BadRequest).send("Invalid promo code");
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
@@ -85,10 +78,7 @@ class BillsController {
     try {
       const data = dataWithBooking;
       const result = await billsService.createBillWithBooking(data);
-      if (result === variable.BadRequest)
-        return res
-          .status(variable.BadRequest)
-          .send("This booking is not confirmed");
+      if (result === variable.BadRequest) return res.status(variable.BadRequest).send("This booking is not confirmed");
       res.send(result);
     } catch (err) {
       res.status(variable.BadRequest).send(err.message);
@@ -100,14 +90,8 @@ class BillsController {
     try {
       let id = parseInt(req.params.id);
       let roleIdAuth = req.user.roleId;
-      if (
-        roleIdAuth &&
-        roleIdAuth != variable.ReceptionistRoleId &&
-        roleIdAuth != variable.AdminRoleId
-      )
-        return res
-          .status(variable.BadRequest)
-          .send("No permission! Only works for receptionist accounts");
+      if (roleIdAuth && roleIdAuth != variable.ReceptionistRoleId && roleIdAuth != variable.AdminRoleId)
+        return res.status(variable.BadRequest).send("No permission! Only works for receptionist accounts");
       await billsService.deleteBill(id);
 
       res.send("Delete Booking successful!");
@@ -144,10 +128,7 @@ class BillsController {
     try {
       const year = req.query.year;
       const month = req.query.month;
-      const services = await billsService.getTopServicesInMonth(
-        parseInt(year),
-        parseInt(month)
-      );
+      const services = await billsService.getTopServicesInMonth(parseInt(year), parseInt(month));
       res.send(services);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
