@@ -22,10 +22,7 @@ exports.createBooking = async function (data) {
     if (listBookings.length >= 5) {
       return variable.ExceededBooking;
     }
-    const filter = listBookings.filter((item) => item.status == "Confirm");
-    if (filter.length > 0) {
-      return variable.ConfirmBooking;
-    }
+
     const createBooking = await prisma.bookings.create({
       data,
       include: { staff: true, customer: true },
