@@ -17,8 +17,7 @@ class DepartmentsController {
 
   async getListDepartmentsByFilter(req, res) {
     try {
-      const listDepartments =
-        await departmentsService.getListDepartmentsByFilter(req.query);
+      const listDepartments = await departmentsService.getListDepartmentsByFilter(req.query);
       if (!listDepartments) return res.status(variable.NoContent).send();
       res.send(listDepartments);
     } catch (err) {
@@ -30,8 +29,7 @@ class DepartmentsController {
   async createDepartment(req, res) {
     const roleIdAuth = req.user.roleId;
     const { error } = validateDepartment(req.body);
-    if (error)
-      return res.status(variable.BadRequest).send(error.details[0].message);
+    if (error) return res.status(variable.BadRequest).send(error.details[0].message);
     if (roleIdAuth != variable.AdminRoleId) {
       return res.status(403).send("No permission!");
     }
@@ -54,16 +52,14 @@ class DepartmentsController {
     try {
       const id = parseInt(req.params.id);
       const roleIdAuth = req.user.roleId;
-      if (roleIdAuth != variable.AdminRoleId)
-        return res.status(variable.Forbidden).send("No permission!");
+      if (roleIdAuth != variable.AdminRoleId) return res.status(variable.Forbidden).send("No permission!");
       let data = {
         name: req.body.name,
         isDeleted: req.body.isDeleted,
         managerId: req.body.managerId,
       };
       let update = await departmentsService.updateDepartment(id, data);
-      if (!update)
-        return res.status(variable.BadRequest).send("Update failed!");
+      if (!update) return res.status(variable.BadRequest).send("Update failed!");
       res.send(update);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
@@ -76,14 +72,9 @@ class DepartmentsController {
       let idArray = req.body.idArray;
       let roleIdAuth = req.user.roleId;
       if (roleIdAuth != variable.AdminRoleId)
-        return res
-          .status(variable.BadRequest)
-          .send("No permission! Only works for admin accounts");
-      let delManyDepartments = await departmentsService.deleteManyDepartments(
-        idArray
-      );
-      if (delManyDepartments == variable.NoContent)
-        return res.status(variable.NoContent).send();
+        return res.status(variable.BadRequest).send("No permission! Only works for admin accounts");
+      let delManyDepartments = await departmentsService.deleteManyDepartments(idArray);
+      if (delManyDepartments == variable.NoContent) return res.status(variable.NoContent).send();
       res.send("Delete Departments successful!");
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);

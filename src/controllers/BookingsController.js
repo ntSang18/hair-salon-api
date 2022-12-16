@@ -154,6 +154,10 @@ class BookingsController {
         return res
           .status(variable.Forbidden)
           .send("No permission! Only update your booking");
+      if (update === variable.BadRequest)
+        return res
+          .status(variable.BadRequest)
+          .send("This employee has a schedule at this time");
       if (Array.isArray(update)) {
         let dupError = {};
         dupError.message = "Duplicate service(s)";

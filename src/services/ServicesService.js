@@ -3,10 +3,13 @@ const { equal } = require("joi");
 const { NoContent } = require("../common/variable");
 const prisma = new PrismaClient();
 const path = require("path");
+const { HOST_USER_SERVICE } = require("../common/HOST_SERVICE");
 
 exports.getListServices = async function (filter, host) {
   const page = filter.page ? parseInt(filter.page) : filter.page;
-  const pageSize = filter.pageSize ? parseInt(filter.pageSize) : filter.pageSize;
+  const pageSize = filter.pageSize
+    ? parseInt(filter.pageSize)
+    : filter.pageSize;
   const paginateObj =
     page != undefined && pageSize != undefined
       ? {
@@ -29,7 +32,8 @@ exports.getListServices = async function (filter, host) {
     if (listServices.length > 0) {
       listServices.forEach((item) => {
         if (item.imageName) {
-          item.imagePath = host + "/src/images/services/" + item.imageName;
+          item.imagePath =
+            HOST_USER_SERVICE + "src/images/services/" + item.imageName;
         }
       });
     }
@@ -48,7 +52,8 @@ exports.getServiceById = async function (id, host) {
 
     if (service) {
       if (service.imageName) {
-        service.imagePath = host + "/src/images/services/" + service.imageName;
+        service.imagePath =
+          HOST_USER_SERVICE + "src/images/services/" + service.imageName;
       }
     }
     return service;
@@ -78,8 +83,14 @@ exports.updateService = async function (id, data, host) {
 
     if (service) {
       if (data.imageName) {
-        data.imagePath = host + "/src/images/services/" + data.imageName;
-        deleteImgByPath(path.join(__dirname, "../../src/images/services/" + oldService.imageName));
+        service.imagePath =
+          HOST_USER_SERVICE + "src/images/services/" + data.imageName;
+        deleteImgByPath(
+          path.join(
+            __dirname,
+            "../../src/images/services/" + oldService.imageName
+          )
+        );
       }
     }
     return service;
