@@ -168,6 +168,20 @@ exports.updateBooking = async function (id, data, customerId, roleIdAuth) {
         },
       },
     });
+
+    if (data.status === variable.ConfirmBooking) {
+      let dupBooking = await prisma.bookings.findFirst({
+        where: {
+          Id: { not: id },
+          status: variable.ConfirmBooking,
+          timeSlot: data.timeSlot,
+          staffId: findBooking?.staffId,
+          date: data.date,
+        },
+      });
+      if (dupBooking) return variable.BadRequest;
+    }
+
     if (
       findBooking.customerId != customerId &&
       roleIdAuth != variable.ReceptionistRoleId &&
@@ -194,13 +208,13 @@ exports.updateBooking = async function (id, data, customerId, roleIdAuth) {
         findBooking.status !== variable.ConfirmBooking &&
         data.status === variable.ConfirmBooking
       ) {
-        amount = { increment: 1 };
+        amount = { increment: -1 };
       }
       if (
         findBooking.status === variable.ConfirmBooking &&
         data.status !== variable.ConfirmBooking
       ) {
-        amount = { increment: -1 };
+        amount = { increment: +1 };
       }
       [bookingResponse, adsResponse] = await prisma.$transaction([
         prisma.bookings.update({
