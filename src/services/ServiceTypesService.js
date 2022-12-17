@@ -2,6 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const { equal } = require("joi");
 const { NoContent } = require("../common/variable");
 const prisma = new PrismaClient();
+const { HOST_USER_SERVICE } = require("../common/HOST_SERVICE");
 
 exports.getListServiceTypes = async function (filter, host, encrypted) {
   const page = filter.page ? parseInt(filter.page) : filter.page;

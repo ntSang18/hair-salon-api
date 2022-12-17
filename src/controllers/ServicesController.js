@@ -3,10 +3,7 @@ const servicesService = require("../services/ServicesService");
 class servicesController {
   async getListServicesByFilter(req, res) {
     try {
-      const services = await servicesService.getListServices(
-        req.query,
-        req.get("Host")
-      );
+      const services = await servicesService.getListServices(req.query, req.get("Host"));
       if (!services) return res.status(variable.NoContent).send();
       res.send(services);
     } catch (err) {
@@ -35,9 +32,7 @@ class servicesController {
         name: req.body.name,
         price: parseInt(req.body.price),
         imageName: req.file ? req.file.filename : "",
-        imagePath: req.file
-          ? req.get("Host") + "/src/images/services/" + req.file.filename
-          : "",
+        imagePath: req.file ? req.get("Host") + "/src/images/services/" + req.file.filename : "",
         serviceTypeId: parseInt(req.body.serviceTypeId),
         description: req.body.description ? req.body.description : "",
         createdAt: date,
@@ -58,20 +53,16 @@ class servicesController {
       date.setHours(date.getHours() + 7);
       let data = {
         name: req.body.name,
-        price: parseInt(req.body.price),
+        price: req.body.price ? parseInt(req.body.price) : undefined,
         imageName: req.file ? req.file.filename : "",
-        imagePath: req.file
-          ? req.get("Host") + "/src/images/services/" + req.file.filename
-          : "",
+        imagePath: req.file ? req.get("Host") + "/src/images/services/" + req.file.filename : "",
         serviceTypeId: req.body.serviceTypeId,
         description: req.body.description,
         createdAt: date,
         updatedAt: date,
       };
       let update = await servicesService.updateService(id, data);
-      console.log("update", update);
-      if (!update)
-        return res.status(variable.BadRequest).send("Update service failed!");
+      if (!update) return res.status(variable.BadRequest).send("Update service failed!");
       res.send(update);
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
@@ -82,11 +73,8 @@ class servicesController {
   async deleteManyServices(req, res) {
     try {
       let idArray = req.body.idArray;
-      let deleteManyServices = await servicesService.deleteManyServices(
-        idArray
-      );
-      if (deleteManyServices == variable.NoContent)
-        return res.status(variable.NoContent).send();
+      let deleteManyServices = await servicesService.deleteManyServices(idArray);
+      if (deleteManyServices == variable.NoContent) return res.status(variable.NoContent).send();
       res.send("Delete service successful!");
     } catch (err) {
       res.status(variable.InternalServerError).send(err.message);
